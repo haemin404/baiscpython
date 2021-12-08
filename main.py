@@ -1,3 +1,6 @@
+import pickle
+
+inventory={}
 
 def print_itemMenu():
     print("0. 끝내기")
@@ -34,7 +37,7 @@ def consume_item(item):
 def check_item(item, t_inventory):
     return item in t_inventory
 
-def use_item():
+def use_item(inventory):
     while True:
         print_itemMenu()
         option=int(input("메뉴 번호를 입력하세요.)"))
@@ -52,15 +55,34 @@ def use_item():
             print(inventory)
         elif option==4:
             delete_item=input("아이템을 입력하세요.)")
-            consume_item(delete_item)
+            consume_item(c_item, inventory)
         else:
             print("잘못된 번호를 입력하셨습니다.")
 
 #3번
-inventory={}
+'''
+try:
+    load_file=open("game_save1.p","rb")
+    character=pickle.load(load_file)
+    load_file.close()
+    print("저장된 파일을 읽어왔습니다.")
+except:
+    print("읽어올 파일이 없습니다.")
+    character={}
+'''
+import os
 
-character={}
-select_chatacter=None
+if os.path.isfile("game_save.p"):
+    load_file=open("game_save.p","rb")
+    character=pickle.load(load_file)
+    load_file.close()
+    print("저장된 파일을 읽어왔습니다.")
+else:
+    print("읽어올 파일이 없습니다.")
+    character={}
+
+
+select_character=None
 def new_character(name, t_character):
     if name in t_character:
         print("이미 존재하는 캐릭터의 이름입니다.")
@@ -72,7 +94,7 @@ def check_character(name, t_character):
     return name in t_character
 
 def print_characterMenu():
-    print("0. 끝내기")
+    print("0. 저장하고 끝내기")
     print("1. 캐릭터 추가")
     print("2. 캐릭터 이름출력")
     print("3. 캐릭터 선택")
@@ -82,6 +104,10 @@ while True:
     print_characterMenu()
     option=int(input("메뉴를 선택해주세요.)"))
     if option == 0:
+        save_file=open("game_save.p","wb")
+        pickle.dump(character,save_file)
+        save_file.close()
+        print("게임 내용이 저장되었습니다.")
         print("종료되었습니다.")
         break
     elif option == 1:
@@ -97,7 +123,14 @@ while True:
     elif option == 3:
         temp_name=input("선택할 캐릭터의 이름을 입력해주세요.)")
         if check_character(temp_name, character):
-            select_chatacter = temp_name
-            print(select_chatacter+"이 선택되었습니다.")
+            select_character = temp_name
+            print(select_character+"이 선택되었습니다.")
         else:
             print(temp_name+"은 존재하지않는 캐릭터입니다.")
+    elif option==4:
+        if select_character==None:
+            print("3번 메뉴로 캐릭터를 선택해주세요.")
+        else:
+            print("선택된 캐릭터는 "+select_character+"입니다.")
+            inventory=character[select_character]
+            use_item(inventory)
